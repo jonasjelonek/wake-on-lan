@@ -52,7 +52,7 @@ fn main() -> Result<(), String> {
 			
 			interface = match matching_ifaces.next() {
 				Some(r#if) => r#if,
-				None => return Err(format!("Interface '{}' does not exist!", iface))
+				None => return Err("Specified interface does not exist!".into())
 			};
 		},
 		None => {
@@ -61,7 +61,7 @@ fn main() -> Result<(), String> {
 				.find(|e| e.is_up() && !e.is_loopback() && !e.ips.is_empty()) 
 				{
 					Some(r#if) => r#if,
-					None => return Err(format!("Could not find a default interface that is up, has an IP address and is not a loopback interface!")),
+					None => return Err("Could not find a default interface that is up, has an IP address and is not a loopback interface!".into()),
 				};
 		}
 	}
@@ -79,8 +79,8 @@ fn main() -> Result<(), String> {
 				password.copy_from_slice(pw_m.octets().as_slice());
 			},
 			WolPassword::String(pw_s) => {
-				if pw_s.len() > 6 { return Err(format!("Password is limited to 6 characters!")); }
-				if !pw_s.is_ascii() { return Err(format!("Password")) }
+				if pw_s.len() > 6 { return Err("Password is limited to 6 characters!".into()); }
+				if !pw_s.is_ascii() { return Err("Password must not contain non-ASCII characters!".into()) }
 
 				pw_short = Some(false);
 				password.copy_from_slice(&pw_s[0..=5].as_bytes());
@@ -104,8 +104,8 @@ fn main() -> Result<(), String> {
 
 	let (mut tx, _) = match datalink::channel(&interface, Default::default()) {
 		Ok(Ethernet(tx, rx)) => (tx, rx),
-		Ok(_) => panic!("Unhandled channel type"),
-		Err(e) => panic!("An error occurred when creating the datalink channel: {}", e)
+		Ok(_) => return Err("Interface is not an Ethernet device!".into()),
+		Err(e) => return Err(format!("An error occurred when creating the datalink channel: {}", e)),
 	};
 
 	let mut eth_pkt = MutableEthernetPacket::new(&mut pkt[..]).unwrap();
@@ -114,6 +114,6 @@ fn main() -> Result<(), String> {
 	eth_pkt.set_ethertype(EtherTypes::WakeOnLan);
 
 	tx.send_to(eth_pkt.packet(), None)
-		.unwrap() /* Currently, send_to always return Some(_) */
+		.unwrap() /* Currently send_to always returns Some(_) */
 		.map_err(|e| e.to_string())
 }
