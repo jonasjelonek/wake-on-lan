@@ -14,3 +14,4 @@ panic = "abort"
 [dependencies]
 pnet = "0.33.0"
 clap = { version = "4.3", features = [ "cargo", "derive" ] }
+arrayvec = "0.7.4"
