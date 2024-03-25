@@ -42,27 +42,20 @@ pub struct CliArgs {
 
 fn main() -> Result<(), String> {
 	let args = CliArgs::parse();
-
 	let interface: NetworkInterface;
+
 	match args.interface {
 		Some(iface) => {
-			let mut matching_ifaces = datalink::interfaces()
+			interface = datalink::interfaces()
 				.into_iter()
-				.filter(|r#if| r#if.name.as_str() == iface.as_str());
-			
-			interface = match matching_ifaces.next() {
-				Some(r#if) => r#if,
-				None => return Err("Specified interface does not exist!".into())
-			};
+				.find(|r#if| r#if.name.as_str() == iface.as_str())
+				.ok_or("Specified interface does not exist!".to_string())?;
 		},
 		None => {
-			interface = match datalink::interfaces()
+			interface = datalink::interfaces()
 				.into_iter()
-				.find(|e| e.is_up() && !e.is_loopback() && !e.ips.is_empty()) 
-				{
-					Some(r#if) => r#if,
-					None => return Err("Could not find a default interface that is up, has an IP address and is not a loopback interface!".into()),
-				};
+				.find(|e| e.is_up() && !e.is_loopback() && !e.ips.is_empty())
+				.ok_or("Could not find a default interface that is up, has an IP address and is not a loopback interface!".to_string())?;
 		}
 	}
 
