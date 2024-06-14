@@ -16,6 +16,6 @@ strip = "symbols"
 panic = "abort"
 
 [dependencies]
-pnet = "0.33.0"
-clap = { version = "4.3", features = [ "cargo", "derive" ] }
-arrayvec = "0.7.4"
+pnet = "0.35.0"
+clap = { version = "4.5", features = [ "cargo", "derive" ] }
+arrayvec = "0.7"
