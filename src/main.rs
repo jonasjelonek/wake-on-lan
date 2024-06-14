@@ -27,7 +27,7 @@ impl From<&str> for WolPassword {
 
 #[derive(Debug, Parser)]
 pub struct CliArgs {
-	#[arg(short, long, help = "The MAC address of the target host.")]
+	#[arg(help = "The MAC address of the target host.")]
 	pub target: pnet::util::MacAddr,
 
 	#[arg(short, long)]
